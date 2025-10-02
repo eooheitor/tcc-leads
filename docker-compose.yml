@@ -1,0 +1,49 @@
+services:
+  app:
+    build: .
+    container_name: tcc_app
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - tcc
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      COMPOSER_ALLOW_SUPERUSER: 1
+
+
+  node:
+    image: node:20
+    container_name: tcc_node
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    command: npm run dev
+    networks:
+      - tcc
+
+  db:
+    image: postgres:15
+    container_name: tcc_db
+    restart: always
+    environment:
+      POSTGRES_DB: tcc
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: "1234"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tcc
+
+volumes:
+  postgres_data:
+
+networks:
+  tcc:
+    driver: bridge
