@@ -103,6 +103,27 @@ class GridBuilder
         return $this;
     }
 
+    public function imageColumn(string $key, string $label, int $size = 60): self
+    {
+        $callback = function ($row) use ($key, $size) {
+            $value = data_get($row, $key);
+
+            if (!$value) {
+                return '<span class="text-gray-400 text-sm">Sem imagem</span>';
+            }
+
+            return sprintf(
+                '<img src="%s" alt="%s" style="width:%dpx; height:%dpx; object-fit:cover; border-radius:8px;" />',
+                e($value),
+                e($row->name ?? 'Imagem'),
+                $size,
+                $size
+            );
+        };
+
+        return $this->column($key, $label, $callback);
+    }
+
     public function getColumns()
     {
         return $this->columns;

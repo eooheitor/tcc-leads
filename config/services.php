@@ -22,6 +22,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'facebook' => [
+        'access_token' => env('FACEBOOK_ACCESS_TOKEN'),
+        'account_id' => env('FACEBOOK_ACCOUNT_ID'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

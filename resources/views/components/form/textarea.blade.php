@@ -1,4 +1,7 @@
 <div class="mb-3">
     <label for="{{ $name }}" class="block text-sm font-medium text-gray-700">{{ $label }}</label>
-    <textarea name="{{ $name }}" id="{{ $name }}" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#000000] focus:ring-[#000000] sm:text-sm">{{ old($name, $value ?? '') }}</textarea>
+    <input id="{{ $name }}" type="hidden" name="{{ $name }}" value="{{ old($name, $value ?? '') }}">
+    <trix-editor
+        input="{{ $name }}"
+        class="trix-content mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black sm:text-sm min-h-[200px]"></trix-editor>
 </div>

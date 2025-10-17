@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AnuncioController;
+use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
@@ -20,7 +22,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Catch-all para rotas não encontradas (autenticado)
+    Route::get('/campanhas', [CampanhaController::class, 'index']);
+    Route::get('/anuncios', [AnuncioController::class, 'index']);
+
     Route::fallback([HomeController::class, 'index']);
 });
 

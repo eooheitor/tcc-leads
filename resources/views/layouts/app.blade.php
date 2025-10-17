@@ -7,6 +7,8 @@
     <title>{{ $title ?? 'Painel' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+    <script src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
 </head>
 
 <body class="bg-gray-100 flex h-screen" x-data="{ sidebarOpen: true }">
@@ -45,6 +47,18 @@
                 class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
                 <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
                 <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Mensagens</span>
+            </a>
+            <a href="/campanhas"
+                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
+                <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
+                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Campanhas</span>
+            </a>
+            <a href="/anuncios"
+                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
+                <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
+                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Anúncios</span>
             </a>
         </nav>
     </aside>
