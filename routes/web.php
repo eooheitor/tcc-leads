@@ -22,8 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/campanhas', [CampanhaController::class, 'index']);
-    Route::get('/anuncios', [AnuncioController::class, 'index']);
+    Route::resource('campanhas', CampanhaController::class);
+    Route::resource('anuncios', AnuncioController::class);
 
     Route::fallback([HomeController::class, 'index']);
 });

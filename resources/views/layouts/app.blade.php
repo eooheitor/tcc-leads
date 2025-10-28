@@ -45,19 +45,21 @@
             <a href="/mensagens"
                 :class="sidebarOpen ? 'justify-start' : 'justify-center'"
                 class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
+                <x-heroicon-o-chat-bubble-left-right class="w-5 h-5 flex-shrink-0" />
                 <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Mensagens</span>
             </a>
+
             <a href="/campanhas"
                 :class="sidebarOpen ? 'justify-start' : 'justify-center'"
                 class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
+                <x-heroicon-o-megaphone class="w-5 h-5 flex-shrink-0" />
                 <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Campanhas</span>
             </a>
+
             <a href="/anuncios"
                 :class="sidebarOpen ? 'justify-start' : 'justify-center'"
                 class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-briefcase class="w-5 h-5 flex-shrink-0" />
+                <x-heroicon-o-rectangle-stack class="w-5 h-5 flex-shrink-0" />
                 <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Anúncios</span>
             </a>
         </nav>

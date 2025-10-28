@@ -11,7 +11,7 @@ class CampanhaGrid extends GridBuilder
         parent::__construct($campanhas);
 
         $this->setTitle('Campanhas');
-        // $this->setFormView(\App\View\Forms\MensagemForm::class);
+        $this->setFormView(\App\View\Forms\CampanhaForm::class);
         $this->setRouteDelete('');
         $this->setRouteCreate('');
         $this->setRouteEdit('');

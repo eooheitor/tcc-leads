@@ -5,7 +5,7 @@
 
 <x-modal :modalId="$modalId" :title="$form->getTitle()" size="max-w-4xl">
     <form
-        id="mensagemForm"
+        id="campanhaForm"
         action="{{ $form->getRouteForm() }}"
         method="POST"
         enctype="multipart/form-data">

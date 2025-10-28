@@ -4,6 +4,8 @@
         :rows="$anuncios"
         :columns="$grid->getColumns()"
         formView="anuncios.form"
+        :form="$form"
         :formData="['anuncios' => $anuncios]"
     />
 </x-app-layout>
+

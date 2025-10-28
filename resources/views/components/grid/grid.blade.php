@@ -14,13 +14,14 @@
         </button>
     </div>
 
+    <!-- MUDAR ISSO PARA CONSEGUIR PASSAR O TAMANHO DO FORM DINAMICAMENTE -->
     {{-- Modal --}}
     <template x-if="showModal">
         <div
             x-transition
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
             @click.self="closeModal()">
-            <div class="bg-white rounded-md shadow-lg w-full max-w-md p-4 relative max-h-[85vh] overflow-y-auto">
+            <div class="bg-white rounded-md shadow-lg w-full max-w-4xl p-4 relative max-h-[85vh] overflow-y-auto">
                 <button
                     @click="closeModal()"
                     class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl leading-none">
@@ -70,7 +71,9 @@
                     <td class="px-3 py-2 whitespace-nowrap text-right text-xs font-medium space-x-1">
                         {{-- Editar --}}
                         <button
-                            @click="openModal({{ $row->id }})"
+                            x-data
+                            data-id="{{ $row->id }}"
+                            @click="openModal($el.dataset.id)"
                             class="inline-flex items-center px-2 py-1 rounded bg-[#000000] text-white hover:bg-[#222] transition">
                             <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
                         </button>
@@ -102,12 +105,20 @@
     @endif
 </div>
 
+@php
+    $storeUrl = Route::has($grid->getRouteCreate()) ? route($grid->getRouteCreate()) : '';
+    $editBaseUrl = url(Str::plural($grid->getModelName()));
+    $deleteBaseUrl = url(Str::plural($grid->getModelName()));
+@endphp
+
 <script>
-    Alpine.data('gridData', () => ({
-        ...window.gridData(),
-        csrfToken: '{{ csrf_token() }}',
-        storeUrl: '{{ Route::has($grid->getRouteCreate()) ? route($grid->getRouteCreate()) : null }}',
-        editBaseUrl: '{{ Route::has($grid->getRouteEdit()) ? url(Str::plural($grid->getModelName())) : null }}',
-        deleteBaseUrl: '{{ Route::has($grid->getRouteDelete()) ? url(Str::plural($grid->getModelName())) : null }}',
-    }));
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('gridData', () => ({
+            ...window.gridData(),
+            csrfToken: '{{ csrf_token() }}',
+            storeUrl: '{{ $storeUrl }}',
+            editBaseUrl: '{{ $editBaseUrl }}',
+            deleteBaseUrl: '{{ $deleteBaseUrl }}',
+        }));
+    });
 </script>
