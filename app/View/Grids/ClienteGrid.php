@@ -6,19 +6,17 @@ use App\View\Base\GridBuilder;
 
 class ClienteGrid extends GridBuilder
 {
-    public function __construct($clientes, $mensagens)
+    public function __construct($clientes)
     {
         parent::__construct($clientes);
 
-        $this->setTitle('Clientes');
+        $this->setTitle('Leads');
         $this->setFormView(\App\View\Forms\ClienteForm::class);
-        $this->setRouteDelete('clientes.destroy');
+        $this->setModelName('cliente'); 
+        $this->setRouteName('clientes');    
         $this->setRouteCreate('clientes.store');
-        $this->setRouteEdit('clientes.edit');
-        $this->setModelName('cliente');
-        $this->setFormData([
-            'mensagens' => $mensagens,
-        ]);
+        $this->setRouteEdit('clientes.update');
+        $this->setRouteDelete('clientes.destroy');
 
         $this->getColumnsView();
     }

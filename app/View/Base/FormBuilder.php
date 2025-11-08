@@ -5,11 +5,14 @@ namespace App\View\Base;
 class FormBuilder
 {
     protected array $fields = [];
+    protected array $disabledFields = [];
     protected string $title = '';
     protected string $method = 'POST';
     protected string $routeForm = '';
     protected array $data = [];
     protected array $fieldDefinitions = [];
+    protected bool $multipart = false;
+    protected bool $isEditMode = false;
 
     public function setTitle(string $title): self
     {
@@ -40,6 +43,23 @@ class FormBuilder
         return $this;
     }
 
+    public function disabledOnEdit(array $fields): self
+    {
+        $this->disabledFields = $fields;
+        return $this;
+    }
+
+    public function setEditMode(bool $isEdit): self
+    {
+        $this->isEditMode = $isEdit;
+        return $this;
+    }
+
+    protected function isDisabled(string $name): bool
+    {
+        return $this->isEditMode && in_array($name, $this->disabledFields, true);
+    }
+
     public function getData(string $key, $default = null)
     {
         return $this->data[$key] ?? $default;
@@ -60,15 +80,41 @@ class FormBuilder
         return $this->routeForm;
     }
 
-    public function text(string $name, string $label, $value = ''): self
+    public function getMultipart(): bool
     {
-        $this->fields[] = view('components.form.text', compact('name', 'label', 'value'))->render();
+        return $this->multipart;
+    }
+
+    public function setMultipart(bool $enable = true): self
+    {
+        $this->multipart = $enable;
         return $this;
     }
 
-    public function select(string $name, string $label, array $options = [], $selected = null): self
+    public function text(string $name, string $label, $value = '', $placeholder = ''): self
     {
-        $this->fields[] = view('components.form.select', compact('name', 'label', 'options', 'selected'))->render();
+        $disabled = $this->isDisabled($name);
+        $this->fields[] = view('components.form.text', compact('name', 'label', 'value', 'placeholder', 'disabled'))->render();
+        return $this;
+    }
+
+    public function select(
+        string $name,
+        string $label,
+        array $options = [],
+        $selected = null,
+        bool $disabled = false
+    ): self {
+        $disabled = $disabled || $this->isDisabled($name);
+
+        $this->fields[] = view('components.form.select', compact(
+            'name',
+            'label',
+            'options',
+            'selected',
+            'disabled'
+        ))->render();
+
         return $this;
     }
 
@@ -89,16 +135,43 @@ class FormBuilder
         $this->fields[] = view('components.form.submit', compact('label'))->render();
         return $this;
     }
-    
+
     public function textarea(string $name, string $label, $value = ''): self
     {
         $this->fields[] = view('components.form.textarea', compact('name', 'label', 'value'))->render();
         return $this;
     }
 
-    public function file(string $name, string $label, ?string $currentFile = null): self
+    public function phone(string $name, string $label, $value = '', string $placeholder = ''): self
     {
-        $this->fields[] = view('components.form.file', compact('name', 'label', 'currentFile'))->render();
+        $disabled = method_exists($this, 'isDisabled') ? $this->isDisabled($name) : false;
+        $this->fields[] = view('components.form.phone', compact('name', 'label', 'value', 'placeholder', 'disabled'))->render();
+        return $this;
+    }
+
+    public function file(string $name, string $label, string $accept = ''): self
+    {
+        $this->fields[] = view('components.form.file', compact('name', 'label', 'accept'))->render();
+        return $this;
+    }
+
+    public function fileMultiple(string $name, string $label, string $accept = ''): self
+    {
+        $this->fields[] = view('components.form.file_multiple', compact('name', 'label', 'accept'))->render();
+        return $this;
+    }
+
+    public function date(string $name, string $label, $value = ''): self
+    {
+        $disabled = $this->isDisabled($name);
+        $this->fields[] = view('components.form.date', compact('name', 'label', 'value', 'disabled'))->render();
+        return $this;
+    }
+
+    public function money(string $name, string $label, $value = '', string $placeholder = ''): self
+    {
+        $disabled = $this->isDisabled($name);
+        $this->fields[] = view('components.form.money', compact('name', 'label', 'value', 'placeholder', 'disabled'))->render();
         return $this;
     }
 

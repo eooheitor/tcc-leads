@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mensagem;
 use App\View\Grids\MensagemGrid;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MensagemController extends Controller
 {
@@ -12,77 +13,44 @@ class MensagemController extends Controller
     {
         $mensagens = Mensagem::orderBy('id')->paginate(10);
         $grid = new MensagemGrid($mensagens);
-        $form = new \App\View\Forms\MensagemForm($mensagem ?? null);
+        $form = new \App\View\Forms\MensagemForm();
         return view('mensagens.index', compact('grid', 'mensagens', 'form'));
     }
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'titulo'   => 'required|string|max:255',
-                'mensagem' => 'required|string',
-            ]);
+        $data = $this->validateCreate($request);
+        $mensagem = Mensagem::create($data);
 
-            $dados = $request->only('titulo', 'mensagem');
-
-            $mensagem = Mensagem::create($dados);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success'  => true,
-                    'message'  => 'Mensagem criada com sucesso!',
-                    'mensagem' => $mensagem
-                ]);
-            }
-
-            return redirect()->route('mensagens.index')->with('success', 'Mensagem criada com sucesso!');
-        } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Ocorreu um erro ao salvar. {$e->getMessage()}"
-                ]);
-            }
-
-            return redirect()->back()->with('error', "Ocorreu um erro ao salvar. {$e->getMessage()}");
-        }
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Mensagem criada com sucesso!',
+            'mensagem' => $mensagem,
+        ], 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        try {
+        $mensagem = Mensagem::findOrFail($id);
+        $data = $this->validateUpdate($request);
+        $mensagem->update($data);
 
-            $mensagem = Mensagem::find($id);
-            if (!$mensagem) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Mensagem não encontrada.'
-                ]);
-            }
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Mensagem atualizada com sucesso!',
+            'mensagem' => $mensagem,
+        ]);
+    }
 
-            $dados = $request->only('titulo', 'mensagem');
-            $mensagem->update($dados);
+    public function destroy(Request $request, string $id)
+    {
+        $mensagem = Mensagem::findOrFail($id);
+        $mensagem->delete();
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success'  => true,
-                    'message'  => 'Mensagem atualizada com sucesso!',
-                    'mensagem' => $mensagem
-                ]);
-            }
-
-            return redirect()->route('mensagens.index')->with('success', 'Mensagem atualizada com sucesso!');
-        } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Ocorreu um erro ao atualizar. {$e->getMessage()}"
-                ]);
-            }
-
-            return redirect()->back()->with('error', "Ocorreu um erro ao atualizar. {$e->getMessage()}");
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Mensagem excluída com sucesso!',
+        ]);
     }
 
     public function edit($id)
@@ -100,18 +68,57 @@ class MensagemController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, $id)
+    private function validateCreate(Request $request): array
     {
-        $mensagem = Mensagem::findOrFail($id);
-        $mensagem->delete();
+        return $request->validate([
+            'titulo'    => ['required', 'string', 'max:255'],
+            'mensagem'  => ['required', 'string'],
+        ]);
+    }
 
-        if ($request->ajax()) {
+    private function validateUpdate(Request $request): array
+    {
+        return $request->validate([
+            'titulo'    => ['required', 'string', 'max:255'],
+            'mensagem'  => ['required', 'string'],
+        ]);
+    }
+
+    public function formCreate()
+    {
+        try {
+            $form = new \App\View\Forms\MensagemForm(null);
             return response()->json([
-                'success' => true,
-                'message' => 'Mensagem deletada com sucesso'
+                'success'      => true,
+                'title'        => $form->getTitle(),
+                'method'       => $form->getMethod(),
+                'action'       => $form->getRouteForm(),
+                'multipart'    => false,
+                'fields_html'  => $form->render(),
             ]);
+        } catch (\Throwable $e) {
+            Log::error('mensagens.formCreate error', ['ex' => $e]);
+            return response()->json(['success' => false, 'message' => 'Erro ao carregar formulário.'], 500);
         }
+    }
 
-        return redirect()->route('mensagens.index')->with('success', 'Mensagem deletada com sucesso');
+    public function formEdit(string $id)
+    {
+        try {
+            $mensagem = Mensagem::findOrFail($id);
+            $form = new \App\View\Forms\MensagemForm($mensagem);
+
+            return response()->json([
+                'success'      => true,
+                'title'        => $form->getTitle(),
+                'method'       => 'PUT',
+                'action'       => url('mensagens/' . $mensagem->id),
+                'multipart'    => false,
+                'fields_html'  => $form->render(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('mensagens.formEdit error', ['ex' => $e]);
+            return response()->json(['success' => false, 'message' => 'Erro ao carregar formulário: ' . $e->getMessage()], 500);
+        }
     }
 }

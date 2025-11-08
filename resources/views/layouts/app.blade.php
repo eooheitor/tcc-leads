@@ -15,11 +15,21 @@
     <aside :class="sidebarOpen ? 'w-64' : 'w-16'"
         class="bg-white shadow-md flex flex-col transition-all duration-300">
 
-    <div class="h-16 flex items-center px-6 border-b bg-[#000000]"
+        <!-- Sidebar Header -->
+        <div class="h-16 flex items-center px-4 border-b bg-black"
             :class="sidebarOpen ? 'justify-between' : 'justify-center'">
-            <span x-show="sidebarOpen" class="text-xl font-bold text-white">Meu Painel</span>
-            <button @click="sidebarOpen = !sidebarOpen" class="text-white ml-auto p-2 rounded-md hover:bg-gray-100 hover:text-black focus:outline-none"
-                x-show="sidebarOpen || !sidebarOpen">
+
+            <!-- Ícone (aparece só quando sidebarOpen = true) -->
+            <a href="/"
+                x-show="sidebarOpen"
+                class="flex items-center space-x-2 transition-all duration-300">
+                <x-heroicon-o-building-office-2 class="w-10 h-10 text-white" />
+            </a>
+
+            <!-- Botão de abrir/fechar -->
+            <button
+                @click="sidebarOpen = !sidebarOpen"
+                class="text-white ml-auto p-2 rounded-md hover:bg-gray-800 hover:text-white focus:outline-none transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 6h16M4 12h16M4 18h16" />
@@ -27,78 +37,78 @@
             </button>
         </div>
 
+        <!-- Sidebar Menu -->
         <nav class="flex-1 p-4 space-y-2">
-            <a href="/"
-                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-home class="w-5 h-5 flex-shrink-0" />
-                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Início</span>
-            </a>
+            @php
+            $links = [
+            ['url' => '/', 'icon' => 'home', 'label' => 'Início'],
+            ['url' => '/clientes', 'icon' => 'list-bullet', 'label' => 'Leads'],
+            ['url' => '/mensagens', 'icon' => 'chat-bubble-left-right', 'label' => 'Mensagens'],
+            ['url' => '/campanhas', 'icon' => 'megaphone', 'label' => 'Campanhas'],
+            ['url' => '/anuncios', 'icon' => 'rectangle-stack', 'label' => 'Anúncios'],
+            ['url' => '/adsets', 'icon' => 'rectangle-stack', 'label' => 'Ad Sets'],
+            ];
+            @endphp
 
-            <a href="/clientes"
+            @foreach ($links as $link)
+            <a href="{{ $link['url'] }}"
                 :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-list-bullet class="w-5 h-5 flex-shrink-0" />
-                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Clientes</span>
+                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-black hover:text-white text-gray-700">
+                <x-dynamic-component :component="'heroicon-o-' . $link['icon']" class="w-5 h-5 flex-shrink-0" />
+                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">{{ $link['label'] }}</span>
             </a>
-
-            <a href="/mensagens"
-                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-chat-bubble-left-right class="w-5 h-5 flex-shrink-0" />
-                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Mensagens</span>
-            </a>
-
-            <a href="/campanhas"
-                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-megaphone class="w-5 h-5 flex-shrink-0" />
-                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Campanhas</span>
-            </a>
-
-            <a href="/anuncios"
-                :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-[#000000] hover:text-white text-gray-700">
-                <x-heroicon-o-rectangle-stack class="w-5 h-5 flex-shrink-0" />
-                <span x-show="sidebarOpen" class="whitespace-nowrap font-medium">Anúncios</span>
-            </a>
+            @endforeach
         </nav>
     </aside>
 
+    <!-- Main content -->
     <div class="flex-1 flex flex-col">
-        <header class="h-16 shadow flex justify-end items-center px-6">
+        <!-- HEADER -->
+        <header class="h-16 bg-white shadow flex justify-end items-center px-6 border-b">
             <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
-                    <span class="font-medium">{{ auth()->user()->name }}</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button
+                    @click="open = !open"
+                    class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <x-heroicon-o-user class="w-5 h-5 text-gray-600" />
+                        </div>
+                        <span class="font-medium text-gray-800">{{ auth()->user()->name }}</span>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-600 transition-transform duration-200"
+                        :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                <div x-show="open" @click.away="open = false"
-                    class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-gray-100">Perfil</a>
 
+                <!-- Dropdown -->
+                <div x-show="open" @click.away="open = false"
+                    x-transition.origin.top.right
+                    class="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100">
+                    <a href="{{ route('profile.edit') }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Perfil</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <button type="submit"
+                            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                             Sair
                         </button>
                     </form>
-
                 </div>
             </div>
         </header>
 
+        <!-- PAGE CONTENT -->
         <main class="flex-1 p-6 overflow-y-auto">
             @hasSection('content')
-                @yield('content')
+            @yield('content')
             @else
-                {{ $slot ?? '' }}
+            {{ $slot ?? '' }}
             @endif
         </main>
     </div>
-
 </body>
+
 
 </html>

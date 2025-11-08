@@ -38,8 +38,16 @@
 
                 {{-- Formulário dinâmico --}}
                 @if(isset($form) && $form)
-                <form x-show="!loading" @submit.prevent="handleFormSubmit" class="space-y-3">
-                    {!! $form->render() !!}
+                <form x-show="!loading"
+                    @submit.prevent="handleFormSubmit"
+                    class="space-y-3"
+                    :enctype="formEnctype"
+                    x-ref="formEl">
+                    <template x-if="['PUT','PATCH','DELETE'].includes(formMethod)">
+                        <input type="hidden" name="_method" :value="formMethod">
+                    </template>
+
+                    <div x-html="formFieldsHtml"></div>
                 </form>
                 @endif
             </div>
@@ -80,10 +88,17 @@
 
                         {{-- Excluir --}}
                         <button
-                            @click="deleteItem({{ $row->id }})"
+                            x-data
+                            data-id="{{ $row->id }}"
+                            @click="deleteItem($el.dataset.id)"
                             class="inline-flex items-center px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition">
                             <x-heroicon-o-trash class="w-3.5 h-3.5" />
                         </button>
+                        <!-- <button
+                            @click="deleteItem({{ $row->id }})"
+                            class="inline-flex items-center px-2 py-1 rounded bg-green-600 text-white hover:bg-red-700 transition">
+                            <x-heroicon-o-arrow-right class="w-3.5 h-3.5" />
+                        </button> -->
                     </td>
                 </tr>
                 @empty
@@ -104,11 +119,12 @@
     </div>
     @endif
 </div>
-
 @php
-    $storeUrl = Route::has($grid->getRouteCreate()) ? route($grid->getRouteCreate()) : '';
-    $editBaseUrl = url(Str::plural($grid->getModelName()));
-    $deleteBaseUrl = url(Str::plural($grid->getModelName()));
+$storeUrl = route($grid->getRouteName().'.store');
+$editBaseUrl = url(Str::plural($grid->getModelName()));
+$deleteBaseUrl = url(Str::plural($grid->getModelName()));
+$formCreateUrl = route($grid->getRouteName().'.form.create'); // ex: adsets.form.create
+$formEditBaseUrl = url($grid->getRouteName().'/form'); // ex: /adsets/form
 @endphp
 
 <script>
@@ -119,6 +135,9 @@
             storeUrl: '{{ $storeUrl }}',
             editBaseUrl: '{{ $editBaseUrl }}',
             deleteBaseUrl: '{{ $deleteBaseUrl }}',
+            formCreateUrl: '{{ $formCreateUrl }}',
+            formEditBaseUrl: '{{ $formEditBaseUrl }}',
+            modelName: '{{ $grid->getModelName() }}',
         }));
     });
 </script>

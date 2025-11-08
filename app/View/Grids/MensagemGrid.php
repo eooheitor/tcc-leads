@@ -6,16 +6,17 @@ use App\View\Base\GridBuilder;
 
 class MensagemGrid extends GridBuilder
 {
-    public function __construct($mensagens)
+    public function __construct($rows)
     {
-        parent::__construct($mensagens);
+        parent::__construct($rows);
 
         $this->setTitle('Mensagens');
         $this->setFormView(\App\View\Forms\MensagemForm::class);
-        $this->setRouteDelete('mensagens.destroy');
-        $this->setRouteCreate('mensagens.store');
-        $this->setRouteEdit('mensagens.edit');
         $this->setModelName('mensagens');
+        $this->setRouteName('mensagens');  
+        $this->setRouteCreate('mensagens.store');
+        $this->setRouteEdit('mensagens.update');
+        $this->setRouteDelete('mensagens.destroy');
 
         $this->getColumnsView();
     }
@@ -24,6 +25,6 @@ class MensagemGrid extends GridBuilder
     {
         $this->column('id', 'ID');
         $this->column('titulo', 'Titulo');
-        $this->column('mensagem', 'Mensagem');
+        $this->columnArea('mensagem', 'Mensagem');
     }
 }
