@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\AnuncioService;
 use App\Services\AdSetService;
-use App\View\Grids\AnuncioGrid;
 use App\Exceptions\FacebookApiException;
 
 class AnuncioController extends Controller
@@ -16,66 +15,42 @@ class AnuncioController extends Controller
         protected AdSetService   $adSetService
     ) {}
 
-    public function index()
-    {
-        try {
-            $anuncios = $this->anuncioService->getAnuncios();
-            $anuncios = array_map(fn($i) => (object) $i, $anuncios);
 
-            // opções para o select de AdSets (id => name)
-            $adsets       = $this->adSetService->getAdSets();
-            $adsetOptions = $this->mapAdsetOptions($adsets);
-
-            $grid = new AnuncioGrid($anuncios);
-            // caso queira usar no grid (exibir nome do AdSet):
-            $grid->setFormData(['adset_map' => $adsetOptions]);
-
-            $form = new \App\View\Forms\AnuncioForm(null, $adsetOptions);
-
-            return view('anuncios.index', compact('grid', 'anuncios', 'form'));
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não foi possível carregar os anúncios/conjuntos.',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /** CRIAR anúncio (aceita upload de imagem para criar o creative) */
     public function store(Request $request)
     {
         try {
             $data = $this->validateCreate($request);
 
-            $filePath = null;
-            if ($request->hasFile('creative_file')) {
-                $file = $request->file('creative_file');
-                // usa caminho temporário real do PHP (sem salvar)
-                $filePath = $file->getRealPath();
-            }
+            $image = $request->file('images.0') ?? ($request->file('images')[0] ?? null);
+            $anuncio = $this->anuncioService->createFromForm($data, $image);
 
-            $ad = $this->anuncioService->createAnuncio($data, $filePath);
+            $anuncios = $this->anuncioService->getAnunciosByAdset($data['adset_id']);
+
+            $adsGridHtml = view('adsets.partials.ads_table', [
+                'anuncios' => $anuncios,
+            ])->render();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Anúncio criado com sucesso!',
-                'anuncio' => $ad,
-            ], 201);
-        } catch (FacebookApiException $e) {
+                'success'       => true,
+                'message'       => 'Anúncio criado com sucesso!',
+                'anuncio'       => $anuncio,
+                'ads_grid_html' => $adsGridHtml,
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getUserMessage() ?? 'Falha na API do Facebook.',
-                'error'   => $e->getMessage(),
-            ], $e->getStatus() ?? 400);
+                'message' => 'Dados inválidos.',
+                'errors'  => $e->errors(),
+            ], 422);
         } catch (\Throwable $e) {
-            Log::error('Create ad fatal', ['ex' => $e]);
+            Log::error('anuncios.store fatal', ['ex' => $e]);
             return response()->json([
                 'success' => false,
-                'message' => "Erro ao criar o anúncio. {$e->getMessage()}",
+                'message' => 'Não foi possível criar o anúncio. ' . $e->getMessage(),
             ], 500);
         }
     }
+
 
     /** EDITAR (dados + opções para modal) */
     public function edit(string $id)
@@ -122,53 +97,37 @@ class AnuncioController extends Controller
     {
         try {
             $data = $this->validateUpdate($request);
+            $image = $request->file('images.0') ?? ($request->file('images')[0] ?? null);
+            $anuncio = $this->anuncioService->updateFromForm($id, $data, $image);
+            $adsetId = $anuncio['adset_id'] ?? $data['adset_id'] ?? null;
+            $anuncios = [];
 
-            // OBS: upload de imagem no update não está habilitado por default.
-            // Se precisar, podemos expor um método público no service para gerar creative e setar $data['creative_id'].
-
-            $payload = array_filter([
-                'name'         => $data['name']        ?? null,
-                'status'       => $data['status']      ?? null,
-                'creative_id'  => $data['creative_id'] ?? null,
-            ], fn($v) => !is_null($v) && $v !== '');
-
-            $result = $this->anuncioService->updateAnuncio($id, $payload);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Anúncio atualizado com sucesso!',
-                    'result'  => $result,
-                ]);
+            if ($adsetId) {
+                $anuncios = $this->anuncioService->getAnunciosByAdset($data['adset_id']);
             }
 
-            return redirect()->route('anuncios.index')->with('success', 'Anúncio atualizado com sucesso!');
+            $adsGridHtml = view('adsets.partials.ads_table', [
+                'anuncios' => $anuncios,
+            ])->render();
+
+            return response()->json([
+                'success'       => true,
+                'message'       => 'Anúncio atualizado com sucesso!',
+                'anuncio'       => $anuncio,
+                'ads_grid_html' => $adsGridHtml,
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Dados inválidos.',
-                    'errors'  => $e->errors(),
-                ], 422);
-            }
-            return redirect()->back()->withErrors($e->errors())->withInput();
-        } catch (FacebookApiException $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getUserMessage() ?? 'Falha na API do Facebook.',
-                    'error'   => $e->getMessage(),
-                ], $e->getStatus() ?? 400);
-            }
-            return redirect()->back()->with('error', $e->getUserMessage() ?? $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Dados inválidos.',
+                'errors'  => $e->errors(),
+            ], 422);
         } catch (\Throwable $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Ocorreu um erro ao atualizar. {$e->getMessage()}",
-                ], 500);
-            }
-            return redirect()->back()->with('error', "Ocorreu um erro ao atualizar. {$e->getMessage()}");
+            Log::error('anuncios.update fatal', ['ex' => $e]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Não foi possível atualizar o anúncio. ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -176,26 +135,37 @@ class AnuncioController extends Controller
     public function destroy(Request $request, string $id)
     {
         try {
-            $ok = $this->anuncioService->deleteAnuncio($id);
+            // adset atual (pra recarregar o grid depois)
+            $adsetId = $request->input('adset_id');
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => (bool) $ok,
-                    'message' => $ok ? 'Anúncio excluído com sucesso!' : 'Não foi possível excluir o anúncio.',
-                ], $ok ? 200 : 500);
+            // chama a Meta pra excluir o anúncio
+            $this->anuncioService->deleteAd($id);
+
+            // recarrega o grid daquele conjunto, se tiver adset_id
+            $adsGridHtml = null;
+            if ($adsetId) {
+                $anuncios = $this->anuncioService->getAnunciosByAdset($adsetId);
+
+                $adsGridHtml = view('adsets.partials.ads_table', [
+                    'anuncios' => $anuncios,
+                ])->render();
             }
 
-            return redirect()
-                ->route('anuncios.index')
-                ->with($ok ? 'success' : 'error', $ok ? 'Anúncio excluído com sucesso!' : 'Não foi possível excluir o anúncio.');
+            return response()->json([
+                'success'       => true,
+                'message'       => 'Anúncio excluído com sucesso!',
+                'ads_grid_html' => $adsGridHtml,
+            ]);
         } catch (\Throwable $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Ocorreu um erro ao excluir. {$e->getMessage()}",
-                ], 500);
-            }
-            return redirect()->back()->with('error', "Ocorreu um erro ao excluir. {$e->getMessage()}");
+            Log::error('anuncios.destroy fatal', [
+                'ad_id' => $id,
+                'ex'    => $e,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Não foi possível excluir o anúncio. ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -219,24 +189,38 @@ class AnuncioController extends Controller
     private function validateCreate(Request $request): array
     {
         return $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
             'adset_id'      => ['required', 'string'],
-            'status'        => ['nullable', 'in:ACTIVE,PAUSED,ARCHIVED,DELETED'],
+            'ad_name'          => ['required', 'string', 'max:255'],
+            'status'        => ['required', 'in:ACTIVE,PAUSED,ARCHIVED,DELETED'],
 
-            // Criativo: ou arquivo (upload) ou creative_id (fallback)
-            'creative_file' => ['nullable', 'file', 'image', 'max:8192'], // 8MB
-            'creative_id'   => ['nullable', 'string'],
+            'link_url'      => ['required', 'url'],
+            'primary_text'  => ['nullable', 'string'],
+            'headline'      => ['nullable', 'string', 'max:255'],
+            'description'   => ['nullable', 'string', 'max:255'],
+            'call_to_action' => ['nullable', 'string'],
+
+            'images.*'      => ['nullable', 'image'],
         ], [
-            'adset_id.required' => 'Selecione um Conjunto de Anúncios.',
+            'name.required'      => 'Informe o nome do anúncio.',
+            'adset_id.required'  => 'Conjunto inválido.',
+            'link_url.required'  => 'Informe a URL de destino.',
+            'link_url.url'       => 'Informe uma URL de destino válida.',
         ]);
     }
 
-    private function validateUpdate(Request $request): array
+    protected function validateUpdate(Request $request): array
     {
         return $request->validate([
-            'name'        => ['nullable', 'string', 'max:255'],
-            'status'      => ['nullable', 'in:ACTIVE,PAUSED,ARCHIVED,DELETED'],
-            'creative_id' => ['nullable', 'string'],
+            'ad_name'       => ['sometimes', 'string', 'max:255'],
+            'status'        => ['sometimes', 'in:ACTIVE,PAUSED'],
+            'adset_id'      => ['sometimes', 'string'],
+            'link_url'      => ['sometimes', 'nullable', 'url'],
+            'primary_text'  => ['sometimes', 'nullable', 'string'],
+            'headline'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'description'   => ['sometimes', 'nullable', 'string', 'max:255'],
+            'call_to_action' => ['sometimes', 'nullable', 'string'],
+            // imagem OPCIONAL no update
+            'images.*'      => ['sometimes', 'file', 'image', 'max:4096'],
         ]);
     }
 }

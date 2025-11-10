@@ -16,6 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/home', [HomeController::class, 'index']);
 
+    Route::get('/teste', [HomeController::class, 'teste'])->name('teste');
+
     Route::resource('mensagens', MensagemController::class);
     Route::get('mensagens/form/create', [MensagemController::class, 'formCreate'])->name('mensagens.form.create');
     Route::get('mensagens/form/{id}/edit', [MensagemController::class, 'formEdit'])->name('mensagens.form.edit');
@@ -23,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clientes', ClienteController::class);
     Route::get('clientes/form/create', [ClienteController::class, 'formCreate'])->name('clientes.form.create');
     Route::get('clientes/form/{id}/edit', [ClienteController::class, 'formEdit'])->name('clientes.form.edit');
+    Route::get('clientes/{cliente}/whatsapp', [ClienteController::class, 'whatsapp'])
+    ->name('clientes.whatsapp');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -31,12 +35,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('campanhas', CampanhaController::class);
     Route::get('campanhas/form/create', [CampanhaController::class, 'formCreate'])->name('campanhas.form.create');
     Route::get('campanhas/form/{id}/edit', [CampanhaController::class, 'formEdit'])->name('campanhas.form.edit');
-    
-    Route::resource('anuncios', AnuncioController::class);
+
+    Route::resource('anuncios', AnuncioController::class)
+        ->only(['store', 'edit', 'update', 'destroy']);
 
     Route::resource('adsets', AdSetController::class);
     Route::get('adsets/form/create', [AdSetController::class, 'formCreate'])->name('adsets.form.create');
     Route::get('adsets/form/{id}/edit', [AdSetController::class, 'formEdit'])->name('adsets.form.edit');
+
+    // Grid filtrado
+    Route::get('adsets/{adset}/ads-grid', [AdSetController::class, 'adsGrid'])
+        ->name('adsets.ads_grid');
 
     Route::fallback([HomeController::class, 'index']);
 });

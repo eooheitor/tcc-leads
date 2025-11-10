@@ -7,6 +7,19 @@ use App\View\Base\FormBuilder;
 
 class AdSetForm extends FormBuilder
 {
+    public function render(): string
+    {
+        $conjuntoHtml = parent::render();
+
+        $hasAdset = $this->isEditMode();
+
+        return view('components.form.adset_tabs', [
+            'form'         => $this,
+            'conjuntoHtml' => $conjuntoHtml,
+            'hasAdset'     => $hasAdset,
+        ])->render();
+    }
+
     public function __construct($adset = null, $campanhas)
     {
         $isEdit = (bool) data_get($adset, 'id');
@@ -40,6 +53,10 @@ class AdSetForm extends FormBuilder
         ], $val('status', 'PAUSED'));
         $this->select('optimization_goal', 'Otimização', AdSet::getOpcoesOtimizacao(), strtoupper($val('optimization_goal', 'LINK_CLICKS')));
         $this->select('billing_event', 'Cobrança', AdSet::getOpcoesCobranca(), $val('billing_event', 'IMPRESSIONS'));
+        $this->select('bid_strategy', 'Estratégia de lance', [
+            'LOWEST_COST_WITHOUT_CAP' => 'Custo mais baixo (sem limite de lance)',
+            'LOWEST_COST_WITH_BID_CAP' => 'Custo mais baixo com limite de lance',
+        ], $val('bid_strategy', 'LOWEST_COST_WITHOUT_CAP'));
         $this->money('daily_budget', 'Orçamento Diário (R$)', $val('daily_budget', ''));
         $this->money('bid_amount', 'Lance (R$)', $val('bid_amount', ''));
         $this->text('age_min', 'Idade mínima', (string) $val('age_min', 18));
@@ -48,7 +65,7 @@ class AdSetForm extends FormBuilder
         $this->date('start_time', 'Início', $val('start_time', ''));
         $this->date('end_time',   'Término', $val('end_time', ''));
 
-        $this->submit($adset ? 'Atualizar Conjunto' : 'Criar Conjunto');
+        // $this->submit($adset ? 'Atualizar Conjunto' : 'Criar Conjunto');
     }
 
     protected function disabledEdit(): array

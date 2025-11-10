@@ -55,6 +55,11 @@ class FormBuilder
         return $this;
     }
 
+    public function isEditMode(): bool
+    {
+        return $this->isEditMode;
+    }
+
     protected function isDisabled(string $name): bool
     {
         return $this->isEditMode && in_array($name, $this->disabledFields, true);
@@ -95,6 +100,12 @@ class FormBuilder
     {
         $disabled = $this->isDisabled($name);
         $this->fields[] = view('components.form.text', compact('name', 'label', 'value', 'placeholder', 'disabled'))->render();
+        return $this;
+    }
+
+    public function raw(string $html): self
+    {
+        $this->fields[] = $html;
         return $this;
     }
 

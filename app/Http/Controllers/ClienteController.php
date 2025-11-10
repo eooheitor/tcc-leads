@@ -8,6 +8,7 @@ use App\View\Forms\ClienteForm;
 use App\View\Grids\ClienteGrid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
@@ -148,5 +149,39 @@ class ClienteController extends Controller
             Log::error('clientes.formEdit error', ['ex' => $e]);
             return response()->json(['success' => false, 'message' => 'Erro ao carregar formulário: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function whatsapp(Cliente $cliente)
+    {
+        $mensagem = $this->parseTemplate($cliente->mensagem->mensagem, $cliente);
+        // dd($mensagem);
+        $url = 'https://wa.me/' . $cliente->numero . '?text=' . urlencode($mensagem);
+
+        return redirect()->away($url);
+    }
+
+    function parseTemplate($template, Cliente $cliente)
+    {
+        $user = Auth::user();
+
+        $vars = [
+            'NOME'             => $cliente->nome,
+            'PROCURAVA'   => $cliente->procurava_oque ?? '',
+            'CIDADE'           => $cliente->cidade,
+            'NOME_DO_CORRETOR' => $user->name,
+        ];
+
+        // substitui os placeholders
+        $texto = preg_replace_callback('/{{(.*?)}}/', function ($matches) use ($vars) {
+            $key = trim($matches[1]);
+            return $vars[$key] ?? $matches[0];
+        }, $template);
+
+        // Remove tags div e substitui <br> por novas linhas
+        $texto = str_replace(['<div>', '</div>'], '', $texto);
+        $texto = str_replace(['<br>', '<br/>', '<br />'], "\n", $texto);
+
+        // Converte qualquer entidade HTML (&nbsp;, emojis, acentos etc.)
+        return html_entity_decode($texto, ENT_QUOTES, 'UTF-8');
     }
 }

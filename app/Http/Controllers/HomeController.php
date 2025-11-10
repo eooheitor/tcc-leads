@@ -12,4 +12,9 @@ class HomeController extends Controller
         $mensagensCount = \App\Models\Mensagem::count();
         return view('home', compact('clientesCount', 'mensagensCount'));
     }
+
+    public function teste()
+    {
+        return view('teste');
+    }
 }

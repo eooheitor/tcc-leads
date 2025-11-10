@@ -27,6 +27,7 @@ class AdSetGrid extends GridBuilder
 
     protected function getColumnsView(): void
     {
+        // $this->column('id', 'ID');
         $this->column('name', 'Nome', function ($row) {
             $name = data_get($row, 'name', '—');
             if (mb_strlen($name) > 40) {

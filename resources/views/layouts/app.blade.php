@@ -45,8 +45,7 @@
             ['url' => '/clientes', 'icon' => 'list-bullet', 'label' => 'Leads'],
             ['url' => '/mensagens', 'icon' => 'chat-bubble-left-right', 'label' => 'Mensagens'],
             ['url' => '/campanhas', 'icon' => 'megaphone', 'label' => 'Campanhas'],
-            ['url' => '/anuncios', 'icon' => 'rectangle-stack', 'label' => 'Anúncios'],
-            ['url' => '/adsets', 'icon' => 'rectangle-stack', 'label' => 'Ad Sets'],
+            ['url' => '/adsets', 'icon' => 'rectangle-stack', 'label' => 'Conjunto de Anúncios'],
             ];
             @endphp
 

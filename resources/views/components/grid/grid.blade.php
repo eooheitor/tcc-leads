@@ -78,6 +78,24 @@
 
                     <td class="px-3 py-2 whitespace-nowrap text-right text-xs font-medium space-x-1">
                         {{-- Editar --}}
+                        @foreach($grid->getActionButtons() as $btn)
+                            @php
+                            $id = data_get($row, 'id');
+                            $url = route($btn['route'], $id);
+                            @endphp
+
+                            <a href="{{ $url }}"
+                                class="inline-flex items-center px-2 py-1 text-xs rounded {{ $btn['classes'] }}">
+                                @if(!empty($btn['icon']))
+                                <x-dynamic-component :component="$btn['icon']" class="w-3.5 h-3.5" />
+                                @endif
+
+                                @if(!empty($btn['label']))
+                                <span class="ml-1">{{ $btn['label'] }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+
                         <button
                             x-data
                             data-id="{{ $row->id }}"
@@ -119,18 +137,43 @@
     </div>
     @endif
 </div>
+<!-- @php
+$routeName = $grid->getRouteName();
+
+$storeUrl = \Illuminate\Support\Facades\Route::has($routeName . '.store')
+? route($routeName . '.store')
+: '';
+
+$editBaseUrl = url(\Illuminate\Support\Str::plural($grid->getModelName()));
+$deleteBaseUrl = url(\Illuminate\Support\Str::plural($grid->getModelName()));
+
+$formCreateUrl = \Illuminate\Support\Facades\Route::has($routeName . '.form.create')
+? route($routeName . '.form.create')
+: '';
+
+$formEditBaseUrl = url($routeName . '/form'); // ex: /adsets/form
+@endphp -->
+
 @php
 $storeUrl = route($grid->getRouteName().'.store');
 $editBaseUrl = url(Str::plural($grid->getModelName()));
 $deleteBaseUrl = url(Str::plural($grid->getModelName()));
-$formCreateUrl = route($grid->getRouteName().'.form.create'); // ex: adsets.form.create
-$formEditBaseUrl = url($grid->getRouteName().'/form'); // ex: /adsets/form
+$formCreateUrl = route($grid->getRouteName().'.form.create');
+$formEditBaseUrl = url($grid->getRouteName().'/form');
+
+// NOVO: rota para criar anúncios
+$adsGridUrlTemplate = route('adsets.ads_grid', ['adset' => '__ADSET__']);
+$adsStoreUrl = route('anuncios.store');
+$adsEditBaseUrl = url('anuncios');
+$adsUpdateBaseUrl = url('anuncios');
+$adsDeleteBaseUrl = url('anuncios');
 @endphp
 
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('gridData', () => ({
             ...window.gridData(),
+
             csrfToken: '{{ csrf_token() }}',
             storeUrl: '{{ $storeUrl }}',
             editBaseUrl: '{{ $editBaseUrl }}',
@@ -138,6 +181,13 @@ $formEditBaseUrl = url($grid->getRouteName().'/form'); // ex: /adsets/form
             formCreateUrl: '{{ $formCreateUrl }}',
             formEditBaseUrl: '{{ $formEditBaseUrl }}',
             modelName: '{{ $grid->getModelName() }}',
+            adsGridUrlTemplate: '{{ $adsGridUrlTemplate }}',
+
+            // anúncios
+            adsStoreUrl: '{{ $adsStoreUrl }}',
+            adsEditBaseUrl: '{{ $adsEditBaseUrl }}',
+            adsUpdateBaseUrl: '{{ $adsUpdateBaseUrl }}',
+            adsDeleteBaseUrl: '{{ $adsDeleteBaseUrl }}',
         }));
     });
 </script>

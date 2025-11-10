@@ -12,9 +12,9 @@ class AdSet extends Model
             'REACH'               => 'Alcance',
             'IMPRESSIONS'         => 'Impressões',
             'LINK_CLICKS'         => 'Cliques no Link',
-            'CONVERSIONS'         => 'Conversões',
+            // 'CONVERSIONS'         => 'Conversões',
             'LEAD_GENERATION'     => 'Geração de Leads',
-            'OFFSITE_CONVERSIONS' => 'Conversões (Offsite)'
+            // 'OFFSITE_CONVERSIONS' => 'Conversões (Offsite)'
         ];
     }
 
@@ -23,7 +23,7 @@ class AdSet extends Model
         return [
             'IMPRESSIONS' => 'Impressões',
             'CLICKS'      => 'Cliques',
-            'LEAD'        => 'Leads',
+            // 'LEAD'        => 'Leads',
         ];
     }
 }

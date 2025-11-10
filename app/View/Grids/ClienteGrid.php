@@ -12,8 +12,8 @@ class ClienteGrid extends GridBuilder
 
         $this->setTitle('Leads');
         $this->setFormView(\App\View\Forms\ClienteForm::class);
-        $this->setModelName('cliente'); 
-        $this->setRouteName('clientes');    
+        $this->setModelName('cliente');
+        $this->setRouteName('clientes');
         $this->setRouteCreate('clientes.store');
         $this->setRouteEdit('clientes.update');
         $this->setRouteDelete('clientes.destroy');
@@ -35,5 +35,12 @@ class ClienteGrid extends GridBuilder
         $this->column('mensagem_id', 'Mensagem', function ($cliente) {
             return $cliente->mensagem->titulo ?? '-';
         });
+
+        $this->addActionButton(
+            'clientes.whatsapp',                         
+            'heroicon-o-chat-bubble-left-right',         
+            'bg-green-500 text-white hover:bg-green-600',
+            ''                                            
+        );
     }
 }

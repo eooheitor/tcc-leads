@@ -17,6 +17,7 @@ class GridBuilder
     protected $routeName;
     protected $routeCreate;
     protected $routeEdit;
+    protected array $actionButtons = [];
 
     public function __construct($rows)
     {
@@ -38,6 +39,27 @@ class GridBuilder
     {
         $this->routeEdit = $routeEdit;
         return $this;
+    }
+
+    public function addActionButton(
+        string $routeName,
+        ?string $icon = null,
+        string $classes = 'bg-gray-600 text-white hover:bg-gray-700',
+        ?string $label = null
+    ): self {
+        $this->actionButtons[] = [
+            'route'   => $routeName,
+            'icon'    => $icon,
+            'classes' => $classes,
+            'label'   => $label,
+        ];
+
+        return $this;
+    }
+
+    public function getActionButtons(): array
+    {
+        return $this->actionButtons;
     }
 
     public function getRouteEdit()
@@ -267,7 +289,7 @@ class GridBuilder
 
     public function getFormCreateUrl(): string
     {
-        return route($this->getRouteName() . '.form.create'); 
+        return route($this->getRouteName() . '.form.create');
     }
 
     public function getFormEditUrl($id): string

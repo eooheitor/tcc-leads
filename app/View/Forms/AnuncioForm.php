@@ -6,47 +6,103 @@ use App\View\Base\FormBuilder;
 
 class AnuncioForm extends FormBuilder
 {
-    private array $adsetOptions;
-
-    public function __construct($anuncio = null, array $adsetOptions = [])
+    public function __construct($anuncio = null)
     {
-        $this->adsetOptions = $adsetOptions;
-        $routeForm = $anuncio ? route('anuncios.update', $anuncio['id'] ?? $anuncio->id ?? null)
-                : route('anuncios.store');
         $this->setTitle($anuncio ? 'Editar Anúncio' : 'Novo Anúncio');
-        $this->setRouteForm($routeForm);
+
+        $this->setRouteForm(
+            $anuncio
+                ? route('anuncios.update', data_get($anuncio, 'id'))
+                : route('anuncios.store')
+        );
+
         $this->setMethod($anuncio ? 'PUT' : 'POST');
+
+        // vamos trabalhar com upload de imagem do criativo
+        $this->setMultipart(true);
 
         $this->build($anuncio);
     }
 
     public function build($anuncio = null): self
     {
-        $this->text('name', 'Nome do Anúncio', $anuncio['name'] ?? $anuncio->name ?? '', 'Ex.: Anúncio Residencial Zandonai');
+        $val = fn(string $key, $default = '') => data_get($anuncio, $key, $default);
 
-        // Selecionar Ad Set
-        $this->select('adset_id', 'Conjunto de Anúncios (Ad Set)', $this->adsetOptions, $anuncio['adset_id'] ?? $anuncio->adset_id ?? '');
+        // ==== GRID 2 COLUNAS (campos "simples") ====
+        $this->raw('<div class="grid grid-cols-1 md:grid-cols-2 gap-4">');
 
-        // Upload de imagem (criativo)
-        $this->setMultipart(true);
-        $this->file('creative_file', 'Imagem do Anúncio (Criativo)', 'image/*');
+        // Linha 1: Nome / Status
+        $this->text(
+            'ad_name',
+            'Nome do Anúncio',
+            $val('name', ''),
+        );
 
-        // Status inicial
-        $this->select('status', 'Status do Anúncio', [
-            'ACTIVE'   => 'Ativo',
-            'PAUSED'   => 'Pausado',
-            'ARCHIVED' => 'Arquivado',
-            'DELETED'  => 'Deletado',
-        ], $anuncio['status'] ?? $anuncio->status ?? 'PAUSED');
+        $this->select(
+            'status',
+            'Status',
+            [
+                'ACTIVE' => 'Ativo',
+                'PAUSED' => 'Pausado',
+            ],
+            $val('status', 'PAUSED')
+        );
 
-        // Tipo de destino
-        $this->select('destination_type', 'Tipo de Destino', [
-            'WEBSITE'   => 'Website',
-            'APP'       => 'Aplicativo',
-            'MESSENGER' => 'Messenger',
-        ], $anuncio['destination_type'] ?? $anuncio->destination_type ?? 'WEBSITE');
+        // Linha 2: Imagem / URL
+        // (ajusta pro método que você realmente tem: file() ou fileMultiple())
+        $this->fileMultiple(
+            'images[]',
+            'Imagem do anúncio (criativo)',
+            'image/*'
+        );
 
-        $this->submit($anuncio ? 'Atualizar Anúncio' : 'Criar Anúncio');
+        $this->text(
+            'link_url',
+            'URL de destino',
+            $val('link_url', ''),
+            'https://'
+        );
+
+        $this->raw('</div>'); // fecha grid 2 colunas
+
+        // ==== CAMPOS FULL-WIDTH ====
+        // Texto principal (Trix)
+        $this->textarea(
+            'primary_text',
+            'Texto principal',
+            $val('primary_text', '')
+        );
+
+        // Headline
+        $this->text(
+            'headline',
+            'Título (headline)',
+            $val('headline', '')
+        );
+
+        // Descrição
+        $this->text(
+            'description',
+            'Descrição',
+            $val('description', '')
+        );
+
+        // CTA
+        $this->select(
+            'call_to_action',
+            'Chamada para ação',
+            [
+                'LEARN_MORE' => 'Saiba mais',
+                'SIGN_UP'    => 'Cadastrar',
+                'APPLY_NOW'  => 'Aplicar agora',
+                'CONTACT_US' => 'Fale conosco',
+                'DOWNLOAD'   => 'Baixar',
+            ],
+            $val('call_to_action', 'LEARN_MORE')
+        );
+
+        // Botão
+        // $this->submit($anuncio ? 'Atualizar anúncio' : 'Criar anúncio');
 
         return $this;
     }

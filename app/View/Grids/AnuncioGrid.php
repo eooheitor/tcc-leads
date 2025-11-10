@@ -3,7 +3,6 @@
 namespace App\View\Grids;
 
 use App\View\Base\GridBuilder;
-use Illuminate\Support\HtmlString;
 
 class AnuncioGrid extends GridBuilder
 {

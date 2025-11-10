@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\FacebookApiException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 abstract class FacebookAbstractService
 {
@@ -62,8 +63,26 @@ abstract class FacebookAbstractService
 
     protected function unwrapData(Response $resp): array
     {
-        $json = $resp->json();
-        return $json['data'] ?? ($json ?? []);
+        // tenta decodificar o JSON
+        $json = [];
+        try {
+            $json = $resp->json();
+        } catch (\Throwable $e) {
+            Log::warning('unwrapData json decode failed', [
+                'status' => $resp->status(),
+                'body'   => $resp->body(),
+                'error'  => $e->getMessage(),
+            ]);
+            return [];
+        }
+
+        // Se não vier "data", devolve o array completo
+        if (is_array($json) && array_key_exists('data', $json)) {
+            return $json['data'] ?? [];
+        }
+
+        // fallback (caso a API retorne algo não padronizado)
+        return $json ?? [];
     }
 
     protected function ensureId(string $id, string $label = 'id'): string
