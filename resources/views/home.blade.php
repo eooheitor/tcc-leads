@@ -121,7 +121,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($reach) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Alcance (30 dias)</div>
+                    <div class="mt-1 text-sm text-gray-500">Alcance</div>
                 </div>
             </div>
 
@@ -136,7 +136,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($impressions) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Impressões (30 dias)</div>
+                    <div class="mt-1 text-sm text-gray-500">Impressões</div>
                 </div>
             </div>
 
@@ -151,7 +151,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($clicks) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Cliques (30 dias)</div>
+                    <div class="mt-1 text-sm text-gray-500">Cliques</div>
                 </div>
             </div>
 
@@ -167,7 +167,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ $leads }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Leads (30 dias)</div>
+                    <div class="mt-1 text-sm text-gray-500">Leads</div>
                 </div>
             </div>
             @endif
@@ -192,7 +192,7 @@
         </div>
 
         <!-- Optional: mini list / últimas atividades -->
-        <div class="mt-10 grid gap-6 lg:grid-cols-3">
+        <!-- <div class="mt-10 grid gap-6 lg:grid-cols-3">
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 lg:col-span-2">
                 <div class="mb-4 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-900">Últimas atividades</h2>
@@ -202,7 +202,6 @@
                     <li class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                                <!-- dot icon -->
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                                     <circle cx="12" cy="12" r="4" />
                                 </svg>
@@ -254,7 +253,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </div>
