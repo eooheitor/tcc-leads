@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('cliente', function (Blueprint $table) {
-            $table->foreignId('mensagem_id')->nullable()->constrained('mensagem');
+        Schema::table('clientes', function (Blueprint $table) {
+            $table->foreignId('mensagem_id')->nullable()->constrained('mensagens');
         });
     }
 
     public function down(): void
     {
-        Schema::table('cliente', function (Blueprint $table) {
+        Schema::table('clientes', function (Blueprint $table) {
             $table->dropForeign(['mensagem_id']);
             $table->dropColumn('mensagem_id');
         });
