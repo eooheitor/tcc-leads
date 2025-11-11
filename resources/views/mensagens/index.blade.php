@@ -1,10 +1,9 @@
 <x-app-layout>
-    <x-grid 
+    <x-grid
         :grid="$grid"
         :rows="$mensagens"
         :columns="$grid->getColumns()"
         formView="mensagens.form"
         :form="$form"
-        :formData="['mensagens' => $mensagens]"
-    />
+        :formData="['mensagens' => $mensagens]" />
 </x-app-layout>

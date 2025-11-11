@@ -25,8 +25,13 @@ return [
     'facebook' => [
         'access_token' => env('FACEBOOK_ACCESS_TOKEN'),
         'account_id'   => env('FACEBOOK_ACCOUNT_ID'),
-        'page_id'      => env('FACEBOOK_PAGE_ID'),   
-        'pixel_id'     => env('FACEBOOK_PIXEL_ID'),  
+        'page_id'      => env('FACEBOOK_PAGE_ID'),
+        'pixel_id'     => env('FACEBOOK_PIXEL_ID'),
+    ],
+
+    'whatsapp' => [
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'token'           => env('WHATSAPP_TOKEN'),
     ],
 
     'ses' => [

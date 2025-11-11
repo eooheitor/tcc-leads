@@ -85,6 +85,7 @@
                             @endphp
 
                             <a href="{{ $url }}"
+                                target="{{ $btn['target'] }}"
                                 class="inline-flex items-center px-2 py-1 text-xs rounded {{ $btn['classes'] }}">
                                 @if(!empty($btn['icon']))
                                 <x-dynamic-component :component="$btn['icon']" class="w-3.5 h-3.5" />

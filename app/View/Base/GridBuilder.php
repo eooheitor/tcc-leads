@@ -45,18 +45,19 @@ class GridBuilder
         string $routeName,
         ?string $icon = null,
         string $classes = 'bg-gray-600 text-white hover:bg-gray-700',
-        ?string $label = null
+        ?string $label = null,
+        string $target = '_self'
     ): self {
         $this->actionButtons[] = [
             'route'   => $routeName,
             'icon'    => $icon,
             'classes' => $classes,
             'label'   => $label,
+            'target'  => $target, 
         ];
 
         return $this;
     }
-
     public function getActionButtons(): array
     {
         return $this->actionButtons;

@@ -37,10 +37,11 @@ class ClienteGrid extends GridBuilder
         });
 
         $this->addActionButton(
-            'clientes.whatsapp',                         
-            'heroicon-o-chat-bubble-left-right',         
-            'bg-green-500 text-white hover:bg-green-600',
-            ''                                            
+            'clientes.whatsapp',
+            'heroicon-o-chat-bubble-left-right', 
+            'bg-green-500 text-white hover:bg-green-600', 
+            '', 
+            '__blank'
         );
     }
 }
