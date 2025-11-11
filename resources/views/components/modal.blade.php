@@ -1,5 +1,5 @@
 @props([
-    'modalId',
+    'modalId' => 'default-modal',
     'size' => '',
     'title' => '',
 ])
