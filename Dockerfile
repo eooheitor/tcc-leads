@@ -22,9 +22,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www
 
-# 1) Instala dependências PHP
+# 1) Instala dependências PHP (SEM scripts do composer)
 COPY composer.json composer.lock* ./
-RUN composer install --no-dev --no-interaction --optimize-autoloader
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
+    --no-dev \
+    --no-interaction \
+    --optimize-autoloader \
+    --no-scripts
 
 # 2) Instala dependências Node e faz build dos assets
 COPY package.json package-lock.json* vite.config.* ./
@@ -33,11 +37,10 @@ RUN [ -f package.json ] && npm install && npm run build || echo "Nenhum frontend
 # 3) Copia o resto do código
 COPY . .
 
-# Opcional: otimizações do Laravel
-RUN php artisan config:cache || true \
- && php artisan route:cache || true \
- && php artisan view:cache || true
-
 EXPOSE 8000
 
-CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# 4) Ao subir o container:
+#    - tenta rodar package:discover (se falhar, segue)
+#    - roda migrations
+#    - sobe o servidor
+CMD ["sh", "-c", "php artisan package:discover --ansi || true; php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
