@@ -87,6 +87,10 @@
                     class="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100">
                     <a href="{{ route('profile.edit') }}"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Perfil</a>
+                    @if (auth()->user()->isAdmin())
+                    <a href="/users"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Gerenciar perfis</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"

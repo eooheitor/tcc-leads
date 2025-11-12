@@ -7,6 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MensagemController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -26,7 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('clientes/form/create', [ClienteController::class, 'formCreate'])->name('clientes.form.create');
     Route::get('clientes/form/{id}/edit', [ClienteController::class, 'formEdit'])->name('clientes.form.edit');
     Route::get('clientes/{cliente}/whatsapp', [ClienteController::class, 'whatsapp'])
-    ->name('clientes.whatsapp');
+        ->name('clientes.whatsapp');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -48,6 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('adsets.ads_grid');
 
     Route::fallback([HomeController::class, 'index']);
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::resource('users', UserController::class)->except(['show']);
+
+    Route::get('users/form/create', [UserController::class, 'formCreate'])->name('users.form.create');
+    Route::get('users/form/{id}/edit', [UserController::class, 'formEdit'])->name('users.form.edit');
 });
 
 // Se não autenticado, fallback para login

@@ -186,6 +186,35 @@ class FormBuilder
         return $this;
     }
 
+    public function password(string $name, string $label, string $placeholder = ''): self
+    {
+        $disabled = $this->isDisabled($name);
+
+        $this->fields[] = view('components.form.password', compact(
+            'name',
+            'label',
+            'placeholder',
+            'disabled'
+        ))->render();
+
+        return $this;
+    }
+
+    public function email(string $name, string $label, $value = '', string $placeholder = ''): self
+    {
+        $disabled = $this->isDisabled($name);
+
+        $this->fields[] = view('components.form.email', compact(
+            'name',
+            'label',
+            'value',
+            'placeholder',
+            'disabled'
+        ))->render();
+
+        return $this;
+    }
+
     public function render(): string
     {
         return implode("\n", $this->fields);

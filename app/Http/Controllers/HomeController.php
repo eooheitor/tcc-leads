@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cliente;
+use App\Models\Mensagem;
 use App\Services\AdSetService;
 use App\Services\CampanhaService;
 use Illuminate\Http\Request;
@@ -11,24 +13,15 @@ class HomeController extends Controller
 {
     public function index(Request $request, HomeService $homeService, CampanhaService $campanhaService, AdSetService $adSetService)
     {
-        $clientesCount = \App\Models\Cliente::count();
-        $mensagensCount = \App\Models\Mensagem::count();
+        $clientesCount = Cliente::count();
+        $mensagensCount = Mensagem::count();
 
         $days = (int) $request->input('days', 30);
         $campaignId = $request->input('campaign_id');
         $adSetId = $request->input('adset_id');
 
-        // carrega listas para os filtros do dropdown
         $campanhas = $campanhaService->getCampanhas();
-        $adSets = $adSetService->getAdSets([
-            // 'filtering' => [
-            //     [
-            //         'field' => 'effective_status',
-            //         'operator' => 'IN',
-            //         'value' => ['ACTIVE', 'PAUSED'],
-            //     ]
-            // ]
-        ]);
+        $adSets = $adSetService->getAdSets([]);
 
         $insights = $homeService->getInsights([
             'days' => $days,
@@ -45,6 +38,30 @@ class HomeController extends Controller
         $leads        = collect($insights['actions'] ?? [])
             ->firstWhere('action_type', 'lead')['value'] ?? 0;
 
+
+        $lastCliente = Cliente::latest('created_at')->first();
+        $lastClienteDiff = $lastCliente
+            ? $lastCliente->created_at->diffForHumans()
+            : 'Nenhum cliente cadastrado ainda';
+        $lastClienteCode = $lastCliente
+            ? sprintf('#CL-%04d', $lastCliente->id)
+            : null;
+
+        $lastMensagem = Mensagem::latest('created_at')->first();
+        $lastMensagemDiff = $lastMensagem
+            ? $lastMensagem->created_at->diffForHumans()
+            : 'Nenhuma mensagem cadastrada ainda';
+
+        $leadsMeta = 100; 
+        $leadsMes = Cliente::whereBetween('created_at', [
+            now()->startOfMonth(),
+            now()->endOfMonth(),
+        ])->count();
+
+        $leadsPercent = $leadsMeta > 0
+            ? min(100, (int) round($leadsMes / $leadsMeta * 100))
+            : 0;
+
         return view('home', compact(
             'clientesCount',
             'mensagensCount',
@@ -59,6 +76,13 @@ class HomeController extends Controller
             'adSets',
             'campaignId',
             'adSetId',
+            // novos:
+            'lastClienteDiff',
+            'lastClienteCode',
+            'lastMensagemDiff',
+            'leadsMes',
+            'leadsMeta',
+            'leadsPercent',
         ));
     }
 

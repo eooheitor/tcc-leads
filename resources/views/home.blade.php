@@ -78,9 +78,9 @@
                             <path stroke-width="1.5" d="M2 20a7 7 0 0 1 14 0v1H2z" />
                         </svg>
                     </div>
-                    <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                    <!-- <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                         +12% vs. mês ant.
-                    </span>
+                    </span> -->
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ $clientesCount }}</div>
@@ -99,9 +99,9 @@
                             <path stroke-width="1.5" d="M8 13h8M8 9h5" />
                         </svg>
                     </div>
-                    <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                    <!-- <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                         +5% este mês
-                    </span>
+                    </span> -->
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ $mensagensCount }}</div>
@@ -121,7 +121,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($reach) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Alcance</div>
+                    <div class="mt-1 text-sm text-gray-500">Alcance ({{ $days }} dias)</div>
                 </div>
             </div>
 
@@ -136,7 +136,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($impressions) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Impressões</div>
+                    <div class="mt-1 text-sm text-gray-500">Impressões ({{ $days }} dias)</div>
                 </div>
             </div>
 
@@ -151,7 +151,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($clicks) }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Cliques</div>
+                    <div class="mt-1 text-sm text-gray-500">Cliques ({{ $days }} dias)</div>
                 </div>
             </div>
 
@@ -167,7 +167,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ $leads }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Leads</div>
+                    <div class="mt-1 text-sm text-gray-500">Leads ({{ $days }} dias)</div>
                 </div>
             </div>
             @endif
@@ -185,20 +185,21 @@
                     <div class="text-3xl font-semibold tracking-tight text-gray-900">
                         R$ {{ number_format($spend, 2, ',', '.') }}
                     </div>
-                    <div class="mt-1 text-sm text-gray-500">Investido nos últimos 30 dias</div>
+                    <div class="mt-1 text-sm text-gray-500">Investido nos últimos {{ $days }} dias</div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Optional: mini list / últimas atividades -->
-        <!-- <div class="mt-10 grid gap-6 lg:grid-cols-3">
+        <div class="mt-10 grid gap-6 lg:grid-cols-3">
+            {{-- Últimas atividades --}}
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 lg:col-span-2">
                 <div class="mb-4 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-900">Últimas atividades</h2>
-                    <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Ver tudo</a>
+                    <span class="text-xs font-medium text-gray-400">Atualizado em tempo real</span>
                 </div>
                 <ul class="divide-y divide-gray-100">
+                    {{-- Último cliente --}}
                     <li class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
@@ -207,12 +208,16 @@
                                 </svg>
                             </span>
                             <div>
-                                <p class="text-sm font-medium text-gray-900">Novo cliente cadastrado</p>
-                                <p class="text-xs text-gray-500">há 2 horas</p>
+                                <p class="text-sm font-medium text-gray-900">Último cliente cadastrado</p>
+                                <p class="text-xs text-gray-500">{{ $lastClienteDiff }}</p>
                             </div>
                         </div>
-                        <span class="text-xs text-gray-500">#CL-1029</span>
+                        @if($lastClienteCode)
+                        <span class="text-xs text-gray-500">{{ $lastClienteCode }}</span>
+                        @endif
                     </li>
+
+                    {{-- Última mensagem --}}
                     <li class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
@@ -221,40 +226,34 @@
                                 </svg>
                             </span>
                             <div>
-                                <p class="text-sm font-medium text-gray-900">Mensagem recebida</p>
-                                <p class="text-xs text-gray-500">há 4 horas</p>
+                                <p class="text-sm font-medium text-gray-900">Última mensagem cadastrada</p>
+                                <p class="text-xs text-gray-500">{{ $lastMensagemDiff }}</p>
                             </div>
                         </div>
-                        <span class="text-xs text-gray-500">canal: WhatsApp</span>
                     </li>
                 </ul>
             </div>
 
+            {{-- Metas --}}
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
                 <h2 class="mb-4 text-sm font-semibold text-gray-900">Metas</h2>
                 <div class="space-y-4">
                     <div>
                         <div class="mb-1 flex justify-between text-xs">
                             <span class="text-gray-500">Leads do mês</span>
-                            <span class="font-medium text-gray-900">72/100</span>
+                            <span class="font-medium text-gray-900">
+                                {{ $leadsMes }}/{{ $leadsMeta }}
+                            </span>
                         </div>
                         <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                            <div class="h-full w-[72%] rounded-full bg-indigo-500"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="mb-1 flex justify-between text-xs">
-                            <span class="text-gray-500">Taxa de resposta</span>
-                            <span class="font-medium text-gray-900">48%</span>
-                        </div>
-                        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                            <div class="h-full w-[48%] rounded-full bg-emerald-500"></div>
+                            <div class="h-full rounded-full bg-indigo-500"
+                                style="width: {{ $leadsPercent }}%">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
 
     </div>
-</div>
-@endsection
+    @endsection
